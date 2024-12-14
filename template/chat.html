@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* Inline styles for demonstration (move to styles.css for production) */
+        .chat-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .chat-input-container {
+            display: flex;
+            padding: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .send-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: blue;
+            color: white;
+            cursor: pointer;
+            margin-left: 10px;
+            border-radius: 8px;
+        }
+
+            .send-button:hover {
+                background-color: darkblue;
+            }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+    <div style="display: flex;">
+        {% include 'sidebar.html' %}
+        <main style="margin-left: 260px; padding: 15px; flex-grow: 1;">
+            <div class="chat-container">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <h2>{{ heading }}</h2>
+                </div>
+
+                <!-- Chat Messages -->
+                <div id="chat-content" style="height: 400px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+                    <!-- Chat messages will be dynamically inserted here -->
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input-container">
+                    <input type="text"
+                           id="userInput"
+                           class="chat-input"
+                           placeholder="Type your message here..."
+                           onkeypress="handleEnter(event)">
+                    <button class="send-button" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    {% include 'footer.html' %}
+    <script src="/static/bottyping.js"></script>
+    <script src="/static/chathistory.js"></script>
+    <script src="/static/sendmessage.js"></script>
+    <script>
+        const chatContent = document.getElementById("chat-content");
+        const userInput = document.getElementById("userInput");
+
+        function addMessage(role, message) {
+            const messageDiv = document.createElement("div");
+            messageDiv.className = role === "user" ? "user-message" : "bot-message";
+            messageDiv.style.margin = "10px 0";
+            messageDiv.style.textAlign = role === "user" ? "right" : "left";
+            messageDiv.style.color = role === "user" ? "blue" : "green";
+            messageDiv.textContent = message;
+            chatContent.appendChild(messageDiv);
+            chatContent.scrollTop = chatContent.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = userInput.value;
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage("user", message);
+            userInput.value = "";
+
+            // Call the backend API
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_message: message }),
+                });
+                const data = await response.json();
+                if (data.reply) {
+                    addMessage("bot", data.reply);
+                } else {
+                    addMessage("bot", "Error: No reply received.");
+                }
+            } catch (error) {
+                addMessage("bot", `Error: ${error.message}`);
+            }
+        }
+
+        function handleEnter(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+
+        window.onload = function () {
+            loadChatHistory();  // Load previous messages
+            const userInput = document.getElementById('userInput');
+            userInput.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        };
+    </script>
+</body>
+</html>

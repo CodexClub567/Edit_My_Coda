@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex Chatbot - Dark Mode</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="messages" id="messages"></div>
+        <div class="input-container">
+            <input type="text" id="userInput" placeholder="Type your message here...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <button onclick="toggleDarkMode()">Dark Mode</button>
+    <style id="darkModeStyles"></style>
+    <script src="/static/script.js" defer></script>
+    <script>
+        function toggleDarkMode() {
+            const styleTag = document.getElementById('darkModeStyles');
+            styleTag.innerText = styleTag.innerText
+                ? '' // Turn off dark mode
+                : `
+                        body {
+                            background-color: #121212;
+                            color: #ffffff;
+                        }
+                        .chat-container {
+                            background: #1e1e1e;
+                            color: #ffffff;
+                        }
+                    `;
+        }
+    </script>
+</body>
+</html>
