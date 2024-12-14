@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex Chatbot</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+    <script src="/static/bottyping.js" defer></script>
+    <script src="/static/chathistory.js" defer></script>
+    <script src="/static/sendmessage.js" defer></script>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="messages" id="messages"></div>
+        <div class="input-container">
+            <input type="text" id="userInput" placeholder="Type your message here...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const messagesDiv = document.getElementById('messages');
+
+        function addMessage(role, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', role);
+            messageDiv.innerText = text;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value;
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage('user', message);
+            userInput.value = '';
+
+            // Show typing indicator
+            addMessage('bot', 'Bot is typing...');
+            const typingIndicator = document.querySelector('.message.bot:last-child');
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_message: message })
+                });
+                const data = await response.json();
+                if (typingIndicator) typingIndicator.remove();
+                if (data.reply) {
+                    addMessage('bot', data.reply);
+                } else {
+                    addMessage('bot', 'Error: Unable to get a response.');
+                }
+            } catch (error) {
+                if (typingIndicator) typingIndicator.remove();
+                addMessage('bot', 'Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+version: '3.8'
+
+# Define services
+services:
+  # FastAPI service
+  server:
+    build:
+      context: .  # Use the current directory to build the image
+    ports:
+      - "8000:8000"  # Map container port 8000 to host port 8000
+    restart: always  # Automatically restart the container if it crashes or stops
+    environment:     # Environment variables
+      OPENAI_API_KEY: ${OPENAI_API_KEY}  # Pass OpenAI API key from .env file or environment
+    volumes:
+      - .:/app  # Mount the current directory to the container's /app directory
+    command: >
+      uvicorn backend:app --host 0.0.0.0 --port 8000 --reload
+
+  # Optional PostgreSQL service
+  db:
+    image: postgres
+    restart: always
+    environment:       # Environment variables for the database
+      POSTGRES_DB: example_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example_password
+    volumes:           # Persist database data
+      - db-data:/var/lib/postgresql/data
+    expose:
+      - "5432"         # Expose database port for internal networking
+    healthcheck:       # Optional health check for database readiness
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# Define volumes
+volumes:
+  db-data:
