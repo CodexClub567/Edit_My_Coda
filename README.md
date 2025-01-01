@@ -29,7 +29,7 @@ To run this project, ensure you have the following installed:
 1. Clone the repository:
    ```bash
    git clone https://github.com/CodexClub567/Edit_My_Coda.git
-   cd codex-chatbot
+   cd Edit_My_Coda
    ```
 
 2. Install dependencies:
