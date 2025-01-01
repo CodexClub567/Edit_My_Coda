@@ -28,7 +28,7 @@ To run this project, ensure you have the following installed:
 ### Backend Setup
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/codex-chatbot.git
+   git clone https://github.com/CodexClub567/Edit_My_Coda.git
    cd codex-chatbot
    ```
 
